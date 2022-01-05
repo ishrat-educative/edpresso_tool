@@ -66,6 +66,7 @@ const apiCall = (f_ids, start_index, end_index, friendly_ids) => {
         .get("https://www.educative.io/api/edpresso/shot/url/" + f_id)
         .then((response) => {
           let contentArray = response.data.content;
+          var writeToBothFiles = true;
           if (contentArray != null && contentArray.length > 0) {
             //loopp: contentArray.forEach((content) => {
             loopp: for (let m = 0; m < contentArray.length; m++) {
@@ -100,22 +101,23 @@ const apiCall = (f_ids, start_index, end_index, friendly_ids) => {
                       let url = split2[0];
                       if (!url.startsWith("https://www.educative.io")) {
                         console.log(url);
-                        //console.log(index);
-                        //urlArray.push(url);
                         count_test++;
                         console.log(count_test);
 
                         let shot_url =
                           "https://www.educative.io/edpresso/" + f_id;
                         let external_link = url;
+
                         writeToExcel(
                           shot_url,
                           response.data.title,
                           external_link,
-                          split2[1]
+                          split2[1],
+                          writeToBothFiles
                         );
-                        console.log("k" + k);
-                        break loopp;
+
+                        writeToBothFiles = false;
+                        //break loopp;
                       }
                     }
                   }
@@ -190,8 +192,31 @@ const writeToExcel = (
   shot_url,
   shot_title,
   external_link,
-  external_link_title
+  external_link_title,
+  writeToBothFiles
 ) => {
+  var tempBool = false;
+  if (
+    shot_title.toLowerCase().includes("Beginner's guide to SASS".toLowerCase())
+  ) {
+    console.log("setting tempBool true");
+    console.log("WriteToBothFiles is " + writeToBothFiles);
+
+    tempBool = true;
+  }
+  if (writeToBothFiles) {
+    if (tempBool) {
+      console.log(tempBool);
+      console.log("Inside if for row1 in workbook 1");
+    }
+    let row1 = worksheet1.addRow({
+      sLink: {
+        text: shot_title,
+        hyperlink: shot_url,
+      },
+    });
+    row1.getCell(1).font = linkStyle;
+  }
   let row2 = worksheet2.addRow({
     eLink: {
       text: external_link_title,
@@ -203,23 +228,13 @@ const writeToExcel = (
     },
   });
 
-  let row1 = worksheet1.addRow({
-    sLink: {
-      text: shot_title,
-      hyperlink: shot_url,
-    },
-  });
+  row2.getCell(1).font = linkStyle;
+  row2.getCell(2).font = linkStyle;
 
+  // save under export.xlsx
   try {
-    row2.getCell(1).font = linkStyle;
-    row2.getCell(2).font = linkStyle;
-
-    row1.getCell(1).font = linkStyle;
-
-    // save under export.xlsx
-
-    workbook.xlsx.writeFile("Edpresso_2.xlsx");
+    workbook.xlsx.writeFile("Edpresso.xlsx");
   } catch (err) {
-    console.log("Could not write to the excel sheet: " + err);
+    console.log("Could not write to the excel file Edpresso.xlsx: " + err);
   }
 };
