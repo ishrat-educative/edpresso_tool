@@ -195,20 +195,7 @@ const writeToExcel = (
   external_link_title,
   writeToBothFiles
 ) => {
-  var tempBool = false;
-  if (
-    shot_title.toLowerCase().includes("Beginner's guide to SASS".toLowerCase())
-  ) {
-    console.log("setting tempBool true");
-    console.log("WriteToBothFiles is " + writeToBothFiles);
-
-    tempBool = true;
-  }
   if (writeToBothFiles) {
-    if (tempBool) {
-      console.log(tempBool);
-      console.log("Inside if for row1 in workbook 1");
-    }
     let row1 = worksheet1.addRow({
       sLink: {
         text: shot_title,
